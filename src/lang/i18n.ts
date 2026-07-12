@@ -87,7 +87,7 @@ async function initI18n(lang: string) {
   const { state } = useAppStateStore();
   lang = toStandardLang(lang);
 
-  const langFiles = import.meta.glob("../../../languages/*.json");
+  const langFiles = import.meta.glob("../../languages/*.json");
   for (const path in langFiles) {
     const langFile = langFiles[path];
     if (typeof langFile !== "function") continue;
