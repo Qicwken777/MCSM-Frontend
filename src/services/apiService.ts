@@ -1,3 +1,4 @@
+import { getApiBase } from "@/config/runtimeConfig";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import { reportErrorMsg } from "@/tools/validator";
 import type { AxiosError, AxiosRequestConfig } from "axios";
@@ -46,7 +47,10 @@ class ApiService {
     });
 
     if (config.url?.startsWith("/")) {
-      config.url = "." + config.url;
+      const apiBase = getApiBase();
+      // apiBase 为空时保持原有行为：解析为当前域名下的相对路径（同源部署）
+      // apiBase 有值时拼接为绝对地址，请求跨域后端
+      config.url = apiBase ? apiBase + config.url : "." + config.url;
     }
 
     if (config.forceRequest === true) {

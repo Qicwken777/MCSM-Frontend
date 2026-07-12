@@ -1,8 +1,12 @@
+import { getBackendLocation } from "@/config/runtimeConfig";
 import { removeTrail } from "./string";
 
 export function parseIp(ip: string) {
   if (ip.toLowerCase() === "localhost" || ip === "127.0.0.1") {
-    return window.location.hostname;
+    // 面板与本地/全局守护进程通常同机部署，注册地址常为 127.0.0.1。
+    // 若配置了跨域后端地址(apiBase)，说明浏览器当前域名并非后端所在域名，
+    // 这时应还原为配置的后端 hostname，而不是前端自己的域名。
+    return getBackendLocation()?.hostname ?? window.location.hostname;
   }
   return ip;
 }
@@ -37,7 +41,8 @@ export function mapDaemonAddress(remoteMappings: RemoteMappingEntry[]) {
 export function parseForwardAddress(addr: string, require: "http" | "ws") {
   // save its protocol header
   //ws://127.0.0.1:25565
-  let protocol = `${window.location.protocol}//`;
+  // 默认协议优先跟随配置的后端地址，未配置时才回退到当前页面协议（原有行为）
+  let protocol = `${getBackendLocation()?.protocol ?? window.location.protocol}//`;
   const addrProtocolString = addr.toLocaleLowerCase();
   if (require === "http") {
     if (addrProtocolString.indexOf("ws://") === 0) protocol = "http://";
@@ -79,9 +84,8 @@ export function parseForwardAddress(addr: string, require: "http" | "ws") {
   // Reassemble the address based on the separated port and ip
   const checkAddr = onlyAddr.toLocaleLowerCase();
   if (checkAddr.indexOf("localhost") === 0 || checkAddr.indexOf("127.0.0.") === 0) {
-    addr = `${protocol}${window.location.hostname}${daemonPort ? `:${daemonPort}` : ""}${
-      path ?? ""
-    }`;
+    const hostname = getBackendLocation()?.hostname ?? window.location.hostname;
+    addr = `${protocol}${hostname}${daemonPort ? `:${daemonPort}` : ""}${path ?? ""}`;
   } else {
     addr = `${protocol}${onlyAddr}${daemonPort ? `:${daemonPort}` : ""}${path ?? ""}`;
   }
