@@ -7,6 +7,12 @@ import EventEmitter from "eventemitter3";
 import _ from "lodash";
 
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+// 面板后端的登录态是基于 session cookie 的（token 只是额外的 CSRF 防护层，
+// 不是身份识别本身）。跨域部署时，浏览器默认不会在请求里带上 Cookie，
+// 必须显式开启 withCredentials，配合后端把 CORS 的 Allow-Credentials
+// 打开、Set-Cookie 加上 SameSite=None; Secure，登录状态才能在跨域下保持住。
+// 同源部署时这一行不受影响（同源请求本来就会带 Cookie）。
+axios.defaults.withCredentials = true;
 axios.interceptors.request.use(async (config) => {
   const { state } = useAppStateStore();
   if (!config.params) config.params = {};
