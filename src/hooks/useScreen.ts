@@ -1,20 +1,21 @@
 import { onMounted, onUnmounted, ref } from "vue";
 
 export function useScreen() {
-  const isPhone = ref(false);
+  const isPhone = ref(window.innerWidth < 992);
 
-  const mediaQuery = window.matchMedia("(max-width: 992px)");
-
-  const fn = (e: MediaQueryListEvent) => (isPhone.value = e.matches);
+  const fn = () => {
+    isPhone.value = window.innerWidth < 992;
+  };
 
   onMounted(() => {
-    isPhone.value = mediaQuery.matches;
-    mediaQuery.addEventListener("change", fn);
+    window.addEventListener("resize", fn);
   });
 
   onUnmounted(() => {
-    mediaQuery.removeEventListener("change", fn);
+    window.removeEventListener("resize", fn);
   });
 
-  return { isPhone };
+  return {
+    isPhone
+  };
 }
