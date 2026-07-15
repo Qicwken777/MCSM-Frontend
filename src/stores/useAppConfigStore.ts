@@ -26,7 +26,7 @@ export const useAppConfigStore = createGlobalState(() => {
 
   const logoImage = computed(() => appConfig.logoImage);
 
-  const currentTheme = useLocalStorage<AppTheme>(THEME_KEY, AppTheme.LIGHT);
+  const currentTheme = useLocalStorage<AppTheme>(THEME_KEY, AppTheme.AUTO);
 
   const isDarkTheme = computed(() => {
     if (currentTheme.value === AppTheme.DARK) return true;
@@ -78,7 +78,7 @@ export const useAppConfigStore = createGlobalState(() => {
     document.body.classList.remove("app-light-theme");
   };
 
-  const resetTheme = () => (currentTheme.value = AppTheme.LIGHT);
+  const resetTheme = () => (currentTheme.value = AppTheme.AUTO);
 
   const initAppTheme = async () => {
     if (
